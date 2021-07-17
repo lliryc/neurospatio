@@ -5,15 +5,10 @@ import sys
 import os
 import numpy as np
 import pandas as pd
-import pytest
 from neurospatio.learner2D import SpLearner, SpreadOp
-from pytest import approx
-from numpy.testing import assert_allclose
-from scipy.spatial.distance import cdist
 from matplotlib import pyplot
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-
 
 def data():
 
@@ -38,7 +33,33 @@ def aux_grid_data():
     aux_df = pd.read_csv("data/CAF_VW_Interpolated.txt", sep=" ", names=["EASTING", "NORTHING", "VW_30cm"])
     return aux_df
 
-#@pytest.fixture
+import numpy as np
+from neurospatio.learner2D import SpLearner, SpreadOp
+
+def example1():
+    # train dataset: set of 2D points with values
+    points = np.array([
+        [2, 8], # X, Y coordinate
+        [8, 10],
+        [10,2]
+    ])
+    values = np.array([19.39, 17.18, 20.95])
+    # create SpLearner with radial interpolation
+    learner = SpLearner(points, values, spread_op_flag=SpreadOp.CENTROIDS, n_epochs=600)
+    # generate a grid for the test
+    grid = np.array([[i, j] for i in range(10) for j in range(10)])
+    # [
+    # [0,0], ...
+    #  [9,9]
+    #]
+    predicted_values = learner.execute(grid_points=grid)
+    # Example of prediction (!may be not the same)
+    #[
+    # [17.96],
+    # ...
+    # [16.27]
+    # ]
+
 def base_test():
     train_df = data()
 
@@ -172,7 +193,8 @@ def aux_test():
     # export to file
     grid_df.to_csv("data/CAF_T_Interpolated.txt", sep=' ', header=False, index=False)
 
-aux_test()
+example1()
+#aux_test()
 #base_test2()
 #influence_test()
 pass
